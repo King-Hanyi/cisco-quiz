@@ -519,7 +519,7 @@ const QUESTIONS = [
     question: "以太网会检查哪两个字段或特性来确定接收到的帧是传递到数据链路层还是被网卡丢弃？（选择两项。）",
     options: ["A. auto-MDIX", "B. 帧校验序列 (FCS)", "C. CEF", "D. 最小帧大小", "E. 源 MAC 地址"],
     answer: "BD",
-    explanation: "网卡会丢弃小于 64 字节的"碎片帧"或"残缺帧"，同时会计算 FCS 以检查传输过程中是否有错误。"
+    explanation: "网卡会丢弃小于 64 字节的\"碎片帧\"或\"残缺帧\"，同时会计算 FCS 以检查传输过程中是否有错误。"
   },
   {
     type: "multi", id: "q35",
@@ -589,7 +589,7 @@ const QUESTIONS = [
     question: "IPv6 单播地址包括哪两种类型？（选择两项。）",
     options: ["A. 本地链路 (Link-local)", "B. 广播", "C. 任播 (Anycast)", "D. 组播", "E. 环回"],
     answer: "AC",
-    explanation: "注意题目问的是"单播"类型。IPv6 没有广播。IPv6 单播包括：全局单播、本地链路、唯一本地单播等。任播虽然特殊，但在寻址上被视为单播的一种表现。"
+    explanation: "注意题目问的是\"单播\"类型。IPv6 没有广播。IPv6 单播包括：全局单播、本地链路、唯一本地单播等。任播虽然特殊，但在寻址上被视为单播的一种表现。"
   },
   {
     type: "multi", id: "q45",
@@ -659,14 +659,14 @@ const QUESTIONS = [
     question: "OSI 模型的哪三层提供类似于 TCP/IP 模型应用层提供的网络服务？（选择三项。）",
     options: ["A. 传输层", "B. 表示层", "C. 物理层", "D. 会话层", "E. 数据链路层", "F. 应用层"],
     answer: "BDF",
-    explanation: "TCP/IP 模型最上层的"应用层"涵盖了 OSI 模型中的第 7 层（应用层）、第 6 层（表示层）和第 5 层（会话层）。"
+    explanation: "TCP/IP 模型最上层的\"应用层\"涵盖了 OSI 模型中的第 7 层（应用层）、第 6 层（表示层）和第 5 层（会话层）。"
   },
   {
     type: "multi", id: "q55",
     question: "员工抱怨 Windows PC 无法连接到互联网。网络技术人员在 PC 上发出 ipconfig 命令，显示的 IP 地址为 169.254.10.3。这可以得出哪两个结论？（选择两项。）",
     options: ["A. 默认网关地址没有配置。", "B. DNS 服务器的地址配置错误。", "C. 电脑无法联系 DHCP 服务器。", "D. 企业网络的动态路由配置错误。", "E. PC 配置为自动获取 IP 地址。"],
     answer: "CE",
-    explanation: "169.254.x.x 是 APIPA 地址。只有当 PC 设为"自动获取"且没能从 DHCP 服务器拿到地址时，Windows 才会分配这种地址。"
+    explanation: "169.254.x.x 是 APIPA 地址。只有当 PC 设为\"自动获取\"且没能从 DHCP 服务器拿到地址时，Windows 才会分配这种地址。"
   },
   {
     type: "multi", id: "q56",
