@@ -713,6 +713,7 @@ if (!state.favorites) state.favorites = [];
 
 let randomCurrentQ = null;
 let currentPage = 'dashboard';
+let lastPage = 'dashboard';
 let currentType = null;
 let currentIndex = 0;
 let currentQuestions = [];
@@ -743,8 +744,10 @@ function toggleMobileMenu() {
 
 // ==================== NAVIGATION ====================
 function switchPage(page) {
+  lastPage = currentPage;
   currentPage = page;
   currentIndex = 0;
+  currentQuestions = [];
   selectedOptions = new Set();
   answered = false;
   if (page === 'random') randomCurrentQ = null;
@@ -765,6 +768,7 @@ function render() {
   else if (currentPage === 'wrong') renderWrong(main);
   else if (currentPage === 'fav') renderFavorites(main);
   else if (currentPage === 'settings') renderSettings(main);
+  lastPage = currentPage;
   updateHeaderStats();
 }
 
@@ -807,7 +811,9 @@ function renderDashboard(el) {
 
 // ==================== PRACTICE ====================
 function renderPractice(el) {
-  currentQuestions = QUESTIONS;
+  if (currentQuestions.length === 0 || currentPage !== lastPage) {
+    currentQuestions = QUESTIONS;
+  }
   renderQuestion(el, currentQuestions, currentIndex);
 }
 
@@ -901,7 +907,9 @@ function renderWrong(el) {
     el.innerHTML = '<div class="empty-state fade-in"><div class="icon">&#127881;</div><div class="title">错题本为空</div><div>太棒了，继续保持！</div></div>';
     return;
   }
-  currentQuestions = wrongQs;
+  if (currentPage !== lastPage) {
+    currentQuestions = wrongQs;
+  }
   renderQuestion(el, currentQuestions, currentIndex);
 }
 
@@ -911,7 +919,9 @@ function renderFavorites(el) {
     el.innerHTML = '<div class="empty-state fade-in"><div class="icon">&#11088;</div><div class="title">收藏夹为空</div><div>点击题目中的收藏按钮添加</div></div>';
     return;
   }
-  currentQuestions = favQs;
+  if (currentPage !== lastPage) {
+    currentQuestions = favQs;
+  }
   renderQuestion(el, currentQuestions, currentIndex);
 }
 
