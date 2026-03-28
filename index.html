@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA 第一册 · 刷题系统</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #232733;
+  --surface3: #2c3040;
+  --border: #353a4a;
+  --text: #e4e6ed;
+  --text2: #9ca0b0;
+  --text3: #6b7084;
+  --accent: #6c8cff;
+  --accent2: #4a6ae5;
+  --accent-glow: rgba(108,140,255,0.15);
+  --green: #4ade80;
+  --green-bg: rgba(74,222,128,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --yellow: #fbbf24;
+  --yellow-bg: rgba(251,191,36,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+.logo span { color: var(--accent); }
+
+.header-stats { display: flex; gap: 20px; font-size: 13px; color: var(--text2); }
+.header-stats .stat-val { color: var(--text); font-weight: 600; }
+
+.app { display: flex; min-height: calc(100vh - 57px); }
+
+.sidebar {
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 12px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  height: calc(100vh - 57px);
+  position: sticky;
+  top: 57px;
+}
+
+.nav-group { margin-bottom: 20px; }
+.nav-label {
+  font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 0 12px; margin-bottom: 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 14px; color: var(--text2);
+  transition: all 0.15s; font-weight: 400;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 500; }
+
+.nav-item .icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.nav-item .badge { margin-left: auto; font-size: 11px; background: var(--surface3); padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+
+.main { flex: 1; padding: 28px 36px; max-width: 900px; overflow-y: auto; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+
+.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+.dash-card .num { font-size: 32px; font-weight: 700; line-height: 1.2; }
+.dash-card .label { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.dash-card.accent .num { color: var(--accent); }
+.dash-card.green .num { color: var(--green); }
+.dash-card.red .num { color: var(--red); }
+.dash-card.yellow .num { color: var(--yellow); }
+
+.progress-bar { width: 100%; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; margin: 12px 0; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+
+.q-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.q-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.q-tag.multi { background: var(--yellow-bg); color: var(--yellow); }
+.q-num { font-size: 13px; color: var(--text3); }
+
+.q-text { font-size: 16px; font-weight: 500; line-height: 1.8; margin-bottom: 24px; color: var(--text); }
+
+.q-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+.q-actions button {
+  font-size: 13px; padding: 6px 14px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); cursor: pointer; transition: all 0.15s;
+}
+.q-actions button:hover { border-color: var(--accent); color: var(--accent); }
+.q-actions button.fav-active { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-bg); }
+
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: all 0.15s; font-size: 15px; line-height: 1.6; user-select: none;
+}
+
+.option:hover { border-color: var(--accent); background: var(--accent-glow); }
+
+.option .opt-mark {
+  width: 28px; height: 28px; border: 2px solid var(--border);
+  border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-size: 13px; font-weight: 600;
+  flex-shrink: 0; transition: all 0.15s; margin-top: 1px;
+}
+
+.option.selected { border-color: var(--accent); background: var(--accent-glow); }
+.option.selected .opt-mark { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+.option.correct { border-color: var(--green); background: var(--green-bg); }
+.option.correct .opt-mark { border-color: var(--green); background: var(--green); color: #fff; }
+
+.option.wrong { border-color: var(--red); background: var(--red-bg); }
+.option.wrong .opt-mark { border-color: var(--red); background: var(--red); color: #fff; }
+
+.option.disabled { pointer-events: none; }
+
+.explanation {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 20px; margin-top: 16px;
+  font-size: 14px; line-height: 1.8; color: var(--text2);
+  display: none;
+}
+.explanation.show { display: block; }
+.explanation .exp-title { color: var(--accent); font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+
+.result-line { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: none; }
+.result-line.show { display: flex; align-items: center; gap: 8px; }
+.result-line.correct { color: var(--green); }
+.result-line.wrong { color: var(--red); }
+
+.nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; }
+
+.btn { padding: 10px 24px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-confirm-multi {
+  background: var(--accent); color: #fff; padding: 10px 28px;
+  border-radius: var(--radius-sm); border: none; font-size: 14px;
+  font-weight: 500; cursor: pointer; display: none;
+}
+.btn-confirm-multi.show { display: inline-block; }
+
+.q-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin: 16px 0; }
+.q-grid-item {
+  width: 100%; aspect-ratio: 1; border: 1px solid var(--border);
+  border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; color: var(--text2);
+}
+.q-grid-item:hover { border-color: var(--accent); }
+.q-grid-item.current { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+.q-grid-item.answered-correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.q-grid-item.answered-wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state .title { font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
+
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.setting-row:last-child { border-bottom: none; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .dash-grid { grid-template-columns: repeat(2, 1fr); }
+  .q-grid { grid-template-columns: repeat(8, 1fr); }
+  .header { padding: 12px 16px; }
+  .mobile-menu-btn { display: block; }
+}
+
+.mobile-menu-btn { display: none; background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; }
+
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: block; }
+  .sidebar.mobile-open {
+    display: block; position: fixed; top: 57px; left: 0; z-index: 200;
+    width: 260px; height: calc(100vh - 57px);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+  }
+}
+
+.fade-in { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">&#9776;</button>
+    <div class="logo"><span>CCNA 第一册</span> &middot; 刷题系统</div>
+  </div>
+  <div class="header-stats">
+    <div>已做 <span class="stat-val" id="hdr-done">0</span></div>
+    <div>正确率 <span class="stat-val" id="hdr-rate">-</span></div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <div class="nav-group">
+      <div class="nav-label">练习模式</div>
+      <div class="nav-item active" onclick="switchPage('dashboard')" data-page="dashboard">
+        <span class="icon">&#128202;</span> 总览
+      </div>
+      <div class="nav-item" onclick="switchPage('practice')" data-page="practice">
+        <span class="icon">&#9745;</span> 顺序练习 <span class="badge" id="badge-all">0</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('random')" data-page="random">
+        <span class="icon">&#127922;</span> 随机练习
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">复习</div>
+      <div class="nav-item" onclick="switchPage('wrong')" data-page="wrong">
+        <span class="icon">&#10060;</span> 错题本 <span class="badge" id="badge-wrong">0</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('fav')" data-page="fav">
+        <span class="icon">&#11088;</span> 收藏夹 <span class="badge" id="badge-fav">0</span>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">设置</div>
+      <div class="nav-item" onclick="switchPage('settings')" data-page="settings">
+        <span class="icon">&#9881;</span> 设置
+      </div>
+    </div>
+  </div>
+
+  <div class="main" id="main-content"></div>
+</div>
+
+<script>
+// ==================== QUESTIONS DATA ====================
+const QUESTIONS = [
+  {
+    type: "multi", id: "q1",
+    question: "哪两项是可扩展网络的特征？（选择两项。）",
+    options: ["A. 规模增长时不会对现有用户造成影响", "B. 提供数量有限的应用程序", "C. 流量增加时容易过载", "D. 适合使用允许扩展的模块化设备", "E. 不如小型网络可靠"],
+    answer: "AD",
+    explanation: "可扩展性是指网络能够随着需求的增长而扩展，且不影响现有服务的性能。采用层次化设计和模块化硬件是实现这一点的关键。"
+  },
+  {
+    type: "multi", id: "q2",
+    question: "哪两个互联网连接选项不要求将物理线缆连接到大楼？（选择两项。）",
+    options: ["A. 拨号", "B. 专用租用线路", "C. DSL", "D. 蜂窝网", "E. 卫星"],
+    answer: "DE",
+    explanation: "蜂窝网通过移动信号塔连接，卫星通过轨道卫星转发信号，二者均属于无线接入技术，无需铺设物理线缆到用户建筑物。"
+  },
+  {
+    type: "multi", id: "q3",
+    question: "网络上的终端设备有哪些功能？（选择两项。）",
+    options: ["A. 它们会过滤数据传输以增强安全性。", "B. 它们提供网络消息的传输通道。", "C. 它们是人与通信网络之间的界面。", "D. 它们会发出通过网络传输的数据。", "E. 它们会在链路发生故障时通过备用路径传输数据。"],
+    answer: "CD",
+    explanation: "终端设备（如 PC、手机）充当用户接入网络的接口，也是数据流量的源头或终点。传输通道属于中间设备和介质的职责。"
+  },
+  {
+    type: "multi", id: "q4",
+    question: "下列哪三个缩写词/首字母缩略词代表标准组织？（选择三项。）",
+    options: ["A. IETF", "B. MAC", "C. OSI", "D. IANA", "E. IEEE", "F. TCP/IP"],
+    answer: "ADE",
+    explanation: "IETF 负责 Internet 标准，IANA 负责 IP 地址分配，IEEE 负责以太网等硬件标准。MAC 是物理地址，OSI 和 TCP/IP 则是参考模型。"
+  },
+  {
+    type: "multi", id: "q5",
+    question: "使用分层网络模型的两个优点是什么？（选择两项。）",
+    options: ["A. 它可加快数据包传输速度。", "B. 它可防止设计者创建自己的模型。", "C. 它确保一个层中的设备可在下一较高层上运行。", "D. 它有助于协议设计。", "E. 它可以防止一个层中的技术影响其他层。"],
+    answer: "DE",
+    explanation: "分层模型促进了模块化开发（有助于设计），并实现了层间解耦（某层的变动不影响其他层），从而增强了兼容性。"
+  },
+  {
+    type: "multi", id: "q6",
+    question: "哪两种协议在互联网层运行？（选择两项。）",
+    options: ["A. IP", "B. BOOTP", "C. ICMP", "D. POP", "E. PPP"],
+    answer: "AC",
+    explanation: "在 TCP/IP 模型中，互联网层的主要协议包括 IP（寻址/封装）和 ICMP（诊断/控制信息）。"
+  },
+  {
+    type: "multi", id: "q7",
+    question: "关于 IPv4 和 IPv6 地址，哪两句表述是正确的？（选择两项。）",
+    options: ["A. IPv4 地址由十六进制数字表示。", "B. IPv6 地址由十六进制数字表示。", "C. IPv6 地址的长度为 32 位。", "D. IPv4 地址的长度为 128 位。", "E. IPv6 地址的长度为 64 位。", "F. IPv4 地址的长度为 32 位。"],
+    answer: "BF",
+    explanation: "IPv4 地址是 32 位二进制，通常写成点分十进制；IPv6 地址是 128 位二进制，通常写成十六进制冒号分隔。"
+  },
+  {
+    type: "multi", id: "q8",
+    question: "哪两个工程组织定义了应用于数据链路层的开放标准和协议？（选择两项。）",
+    options: ["A. Internet 协会 (ISOC)", "B. 国际标准化组织 (ISO)", "C. 互联网编号指派机构 (IANA)", "D. 国际电信联盟 (ITU)", "E. 电子工业联盟 (EIA)"],
+    answer: "BD",
+    explanation: "物理层和数据链路层标准通常由硬件工程组织定义，如 IEEE、ISO、ITU 和 ANSI。"
+  },
+  {
+    type: "multi", id: "q9",
+    question: "OSI 模型数据链路层的两个子层是什么？（选择两项。）",
+    options: ["A. MAC 子层", "B. 互联网子层", "C. 物理层", "D. LLC 子层", "E. 网络接入子层", "F. 传输层"],
+    answer: "AD",
+    explanation: "数据链路层分为 LLC（逻辑链路控制，与上层软件通信）和 MAC（介质访问控制，与底层硬件通信）。"
+  },
+  {
+    type: "multi", id: "q10",
+    question: "OSI 模型的数据链路层执行哪两种服务？（选择两项。）",
+    options: ["A. 确定转发数据包的路径。", "B. 加密数据包。", "C. 通过构建 MAC 地址表来监控第 2 层通信。", "D. 接受第 3 层数据包，并将其封装成帧。", "E. 提供介质访问控制并执行错误检测。"],
+    answer: "DE",
+    explanation: "链路层核心任务：封帧（Header + Packet + Trailer）、管理介质访问权限以及通过 FCS 校验错误。"
+  },
+  {
+    type: "multi", id: "q11",
+    question: "以太网技术有哪些特征？（选择两项。）",
+    options: ["A. 它通常使用平均 16 MB/s 的数据传输速率。", "B. 它使用环形拓扑。", "C. 它使用 CSMA/CD 访问控制方法。", "D. 它受 IEEE 802.3 标准的支持。", "E. 它受 IEEE 802.5 标准的支持。"],
+    answer: "CD",
+    explanation: "以太网的标准号是 802.3，传统共享介质环境使用 CSMA/CD 处理冲突。"
+  },
+  {
+    type: "multi", id: "q12",
+    question: "下列哪两项是以太网帧的大小（最小和最大）？（选择两项。）",
+    options: ["A. 64 个字节", "B. 1024 个字节", "C. 128 个字节", "D. 1518 个字节", "E. 56 个字节"],
+    answer: "AD",
+    explanation: "这是标准以太网 II 帧的范围。小于 64 为碎片，大于 1518（不含 VLAN 标签）为巨人帧。"
+  },
+  {
+    type: "multi", id: "q13",
+    question: "MAC 子层执行哪些功能或操作？（选择两项。）",
+    options: ["A. 它执行 NIC 驱动程序软件的功能。", "B. 它处理上层和下层之间的通信。", "C. 它将控制信息添加到网络协议数据中。", "D. 它添加了报头和帧尾，形成了一个 OSI 第 2 层 PDU。", "E. 它负责介质访问控制。"],
+    answer: "DE",
+    explanation: "MAC 子层直接与物理层接触，负责硬件寻址和帧的封装/拆封。"
+  },
+  {
+    type: "multi", id: "q14",
+    question: "在以太网 MAC 地址解析过程中会使用哪两条 ICMPv6 消息？（选择两项。）",
+    options: ["A. 路由器请求", "B. 回声 (Echo) 请求", "C. 路由器通告", "D. 邻居通告 (Neighbor Advertisement)", "E. 邻居请求 (Neighbor Solicitation)"],
+    answer: "DE",
+    explanation: "在 IPv6 中，不再使用 ARP，而是使用 NDP（邻居发现协议），其核心报文就是 ICMPv6 的邻居请求（NS）和邻居通告（NA）。"
+  },
+  {
+    type: "multi", id: "q15",
+    question: "哪两个部分是 IPv4 地址的组件？（选择两项。）",
+    options: ["A. 广播部分", "B. 子网部分", "C. 主机部分", "D. 网络部分", "E. 物理部分", "F. 逻辑部分"],
+    answer: "CD",
+    explanation: "一个完整的 IPv4 地址在逻辑上被划分为网络前缀（网络部分）和该网络内的特定设备标识（主机部分）。"
+  },
+  {
+    type: "multi", id: "q16",
+    question: "IPv6 全局单播地址的三个部分是什么？（选择三项。）",
+    options: ["A. 一种全局路由前缀，用于标识由本地管理员提供的网络地址的一部分", "B. 用于标识网络上本地主机的接口 ID", "C. 用于标识特定主机的本地网络的接口 ID", "D. 用于标识本地企业站点内部网络的子网 ID", "E. 一种全局路由前缀，用于标识由 ISP 提供的地址的网络部分。"],
+    answer: "BDE",
+    explanation: "IPv6 地址结构：全局路由前缀（ISP 分配）、子网 ID（机构内部划分）和接口 ID（通常为 64 位，唯一标识接口）。"
+  },
+  {
+    type: "multi", id: "q17",
+    question: "下列哪两项可以使用 ping 命令来确定？（选择两项。）",
+    options: ["A. 数据包到达目的设备以及响应返回源设备的平均时间", "B. 源设备与目的设备之间的路径中每台路由器响应的平均时间", "C. 源设备与目的设备之间的路由器数量", "D. 距目的设备最近的路由器的 IP 地址", "E. 是否可以通过网络到达目的设备"],
+    answer: "AE",
+    explanation: "Ping 利用 ICMP 回声请求确认端到端的连通性，并报告往返时间（RTT）。确定路径和跳数则需使用 traceroute。"
+  },
+  {
+    type: "multi", id: "q18",
+    question: "下列哪两项操作是由 TCP 提供而不是由 UDP 提供的？（选择两项。）",
+    options: ["A. 确认收到数据", "B. 重新传输未确认的数据", "C. 按接收顺序重构数据", "D. 标识各个会话", "E. 标识应用"],
+    answer: "AB",
+    explanation: "TCP 是面向连接的，提供确认机制和自动重传（ARQ）以确保可靠性；UDP 则不保证递送。"
+  },
+  {
+    type: "multi", id: "q19",
+    question: "在 TCP 三次握手中，TCP 报头中的哪两个标志用于建立两个网络设备之间的连接？（选择两项。）",
+    options: ["A. PSH", "B. SYN", "C. ACK", "D. RST", "E. URG", "F. FIN"],
+    answer: "BC",
+    explanation: "建立连接过程：1. 发起端发送 SYN；2. 接收端回送 SYN-ACK；3. 发起端回送 ACK。"
+  },
+  {
+    type: "multi", id: "q20",
+    question: "下列哪两种服务或协议使用首选 UDP 协议实现快速传输和低开销？（选择两项。）",
+    options: ["A. HTTP", "B. DNS", "C. FTP", "D. POP3", "E. VoIP"],
+    answer: "BE",
+    explanation: "DNS 通常使用 UDP 以获得快速响应；VoIP（语音）对延迟敏感，允许少量丢包，因此首选 UDP。"
+  },
+  {
+    type: "multi", id: "q21",
+    question: "下列哪两项是 TCP/IP 模型应用层的特征？（选择两项。）",
+    options: ["A. 最接近最终用户", "B. 负责逻辑编址", "C. 在源应用程序和目的应用程序之间创建并维护对话", "D. 负责物理编址"],
+    answer: "AC",
+    explanation: "应用层通过界面与用户交互，并承担了 OSI 模型中会话层（维护对话）的功能。"
+  },
+  {
+    type: "multi", id: "q22",
+    question: "下列哪三种协议或标准在 TCP/IP 模型应用层中使用？（选择三项。）",
+    options: ["A. UDP", "B. MPEG", "C. IP", "D. HTTP", "E. TCP", "F. GIF"],
+    answer: "BDF",
+    explanation: "HTTP 是网络协议，MPEG 和 GIF 属于数据表示格式，在 TCP/IP 模型中均被归类为应用层。"
+  },
+  {
+    type: "multi", id: "q23",
+    question: "哪两项任务可由本地 DNS 服务器执行？（选择两项。）",
+    options: ["A. 支持两台网络设备之间的数据传输", "B. 向本地主机提供 IP 地址", "C. 检索电子邮件消息", "D. 在服务器之间转发名称解析请求", "E. 为内部主机建立名称到 IP 地址的映射"],
+    answer: "DE",
+    explanation: "DNS 的核心作用是域名到 IP 的映射。本地 DNS 存储本地映射，若无法解析则转发给其他服务器。"
+  },
+  {
+    type: "multi", id: "q24",
+    question: "AAA 框架提供哪三项服务？（选择三项。）",
+    options: ["A. 自动平衡", "B. 身份认证 (Authentication)", "C. 授权 (Authorization)", "D. 记帐 (Accounting)", "E. 自动化", "F. 自动配置"],
+    answer: "BCD",
+    explanation: "AAA 分别代表：认证（你是谁）、授权（你能做什么）、计费（你做了什么）。"
+  },
+  {
+    type: "multi", id: "q25",
+    question: "必须执行哪三个配置步骤才能实现对路由器的 SSH 访问？（选择三项。）",
+    options: ["A. 用户账户", "B. 控制台线路密码", "C. 加密密码", "D. IP 域名", "E. 唯一的设备主机名", "F. 启用模式密码"],
+    answer: "ADE",
+    explanation: "SSH 密钥生成需要主机名和域名，而远程登录验证通常需要配置本地用户账户。"
+  },
+  {
+    type: "multi", id: "q26",
+    question: "哪两种流量类型要求延迟敏感型传输？（选择两项。）",
+    options: ["A. 电子邮件", "B. 语音", "C. FTP", "D. 视频", "E. Web"],
+    answer: "BD",
+    explanation: "实时交互类业务（VoIP、视频会议）对延迟和抖动极其敏感，需要优先保证传输质量。"
+  },
+  {
+    type: "multi", id: "q27",
+    question: "哪两个条件有助于您从各种网络介质当中选择一种网络介质？（选择两项。）",
+    options: ["A. 网络上使用的终端设备的成本", "B. 要安装所选介质的环境", "C. 所选介质可以成功传送信号的距离", "D. 网络中安装的中间设备的数量", "E. 需要优先处理的数据类型"],
+    answer: "BC",
+    explanation: "选择介质主要考虑物理因素。不同介质（双绞线、光纤、无线）的有效传输距离不同，且环境（如电磁干扰 EMI 严重的地方不能用铜缆）决定了介质的适用性。"
+  },
+  {
+    type: "multi", id: "q28",
+    question: "下列哪三项是 SVI 的特征？（选择三项。）",
+    options: ["A. 它被设计为用于保护交换机端口的安全协议。", "B. 需要使用它才能实现在任何位置上连接任何设备。", "C. 它是允许连接不同类型介质的特殊接口。", "D. 它提供一种远程管理交换机的方法。", "E. 默认情况下它与 VLAN1 关联。", "F. 它与交换机上的任何物理接口都没有关联。"],
+    answer: "DEF",
+    explanation: "SVI（交换虚拟接口）是逻辑接口。通过为 SVI（如 interface vlan 1）配置 IP，管理员可以远程登录管理交换机。它不代表具体的物理端口。"
+  },
+  {
+    type: "multi", id: "q29",
+    question: "下列哪两项是思科设备上 RAM 的特征？（选择两项。）",
+    options: ["A. RAM 是思科交换机的组件，但不是思科路由器的组件。", "B. RAM 可以存储多个版本的 IOS 和配置文件。", "C. RAM 提供非易失性存储。", "D. 设备上活跃运行的配置存储在 RAM 中。", "E. 重新启动时 RAM 中的内容会丢失。"],
+    answer: "DE",
+    explanation: "RAM 是易失性存储，断电或重启后数据丢失。它用于存放正在运行的操作系统（IOS）和运行配置文件（running-config）。"
+  },
+  {
+    type: "multi", id: "q30",
+    question: "以下哪三种应用层协议是 TCP/IP 协议簇的一部分？（选择三项。）",
+    options: ["A. PPP", "B. DHCP", "C. DNS", "D. NAT", "E. ARP", "F. FTP"],
+    answer: "BCF",
+    explanation: "DHCP（地址分配）、DNS（域名解析）和 FTP（文件传输）均属于 OSI 和 TCP/IP 模型中的应用层协议。PPP 是数据链路层协议，ARP 位于网络层之下。"
+  },
+  {
+    type: "multi", id: "q31",
+    question: "以下哪两种设备通常会影响无线网络？（选择两项。）",
+    options: ["A. 无绳电话", "B. 家庭影院", "C. 外置硬盘驱动器", "D. 蓝光播放器", "E. 白炽灯泡", "F. 微波炉"],
+    answer: "AF",
+    explanation: "无绳电话和微波炉通常工作在 2.4 GHz 频段，这与常见的 Wi-Fi 频段重合，会产生射频干扰（RFI），影响无线性能。"
+  },
+  {
+    type: "multi", id: "q32",
+    question: "网络管理员正在测量一个任务关键型财务应用通过公司主干网络传输带宽的情况。管理员注意到网络吞吐量似乎低于预期的带宽。下列哪三个因素可能会影响吞吐量差异？（选择三项。）",
+    options: ["A. 数据封装方法的复杂程度", "B. 当前通过网络的流量", "C. 数据通过的网络设备数量产生的延时", "D. 主干网络的千兆以太网基础设施的可靠性", "E. 通过网络的流量类型"],
+    answer: "BCE",
+    explanation: "吞吐量是实际传输速率，受网络拥塞程度（当前流量）、中间节点处理延迟以及流量本身特性（如大量小包）的影响。"
+  },
+  {
+    type: "multi", id: "q33",
+    question: "数据链路层支持的所有帧类型共有哪三个基本部分？（选择三项。）",
+    options: ["A. MTU 大小", "B. CRC 值", "C. 数据", "D. 帧尾", "E. 帧头"],
+    answer: "CDE",
+    explanation: "无论哪种数据链路层协议（以太网、PPP 等），其帧结构都包含：包含控制信息的帧头、实际负载（数据）以及用于校验的帧尾。"
+  },
+  {
+    type: "multi", id: "q34",
+    question: "以太网会检查哪两个字段或特性来确定接收到的帧是传递到数据链路层还是被网卡丢弃？（选择两项。）",
+    options: ["A. auto-MDIX", "B. 帧校验序列 (FCS)", "C. CEF", "D. 最小帧大小", "E. 源 MAC 地址"],
+    answer: "BD",
+    explanation: "网卡会丢弃小于 64 字节的"碎片帧"或"残缺帧"，同时会计算 FCS 以检查传输过程中是否有错误。"
+  },
+  {
+    type: "multi", id: "q35",
+    question: "在网络中使用介质访问控制的三种方式是什么？（选择三项。）",
+    options: ["A. 具有受控访问的网络由于数据冲突而降低了性能。", "B. 以太网采用 CSMA/CD。", "C. 802.11 使用 CSMA/CD。", "D. 基于争用的访问也称为确定性。", "E. 介质访问控制在介质上传输数据帧。", "F. 数据链路层上的协议定义了访问不同介质的规则。"],
+    answer: "BEF",
+    explanation: "传统的半双工以太网使用 CSMA/CD（带有冲突检测的载波监听多路访问）。MAC 的核心任务就是决定数据何时以及如何进入物理介质。"
+  },
+  {
+    type: "multi", id: "q36",
+    question: "下列哪两项属于直通交换方法？（选择两项。）",
+    options: ["A. CRC 交换", "B. 快速转发交换", "C. QOS 交换", "D. 存储转发交换", "E. 免分片交换 (Fragment-free)"],
+    answer: "BE",
+    explanation: "直通交换（Cut-through）包括：快速转发（读完目的 MAC 就转发）和免分片（读完前 64 字节过滤冲突碎片后转发）。"
+  },
+  {
+    type: "multi", id: "q37",
+    question: "网络管理员使用直通电缆连接两个现代交换机。交换机是新的，尚未配置。有关最终连接结果，下列哪三种说法是正确的？（选择三项。）",
+    options: ["A. 如果两台交换机支持不同速度，它们将以各自的最高速度运行。", "B. 交换机之间的链路将采用全双工模式。", "C. auto-MDIX 功能将使接口不再需要交叉电缆。", "D. 由于无法协商，因此必须手动配置双工功能。", "E. 交换机之间的链路将以两台交换机所能支持的最高速度运行。", "F. 除非管理员将电缆更换为交叉电缆，否则连接将会失败。"],
+    answer: "BCE",
+    explanation: "现代交换机默认开启自动协商（速度和双工）和 auto-MDIX（自动识别线序），因此直通线也能连接两台交换机。"
+  },
+  {
+    type: "multi", id: "q38",
+    question: "是什么让光纤比铜线更适合于建筑物的互连？（选择三项。）",
+    options: ["A. 容易的端接", "B. 持久的连接", "C. 对 EMI/RFI 的敏感性有限", "D. 每条电缆走线距离更大", "E. 更大的带宽潜力", "F. 更低的安装成本"],
+    answer: "CDE",
+    explanation: "光纤利用光信号传输，不受电磁干扰，且衰减极小（传输距离远），支持的频带宽度远超铜缆。"
+  },
+  {
+    type: "multi", id: "q39",
+    question: "OSI 数据链路层的 LLC 子层执行了哪两项功能？（选择两项。）",
+    options: ["A. 控制网卡，负责在物理介质上发送和接收数据。", "B. 执行数据封装。", "C. 把信息放入帧中，用于确定帧所使用的网络层协议。", "D. 把第 2 层控制信息添加到网络协议数据中。", "E. 集成各种物理技术。"],
+    answer: "BC",
+    explanation: "LLC（逻辑链路控制）子层负责与上层协议通信，通过添加标识来告诉接收端该帧应该交给哪个网络层协议（如 IPv4 或 IPv6）。"
+  },
+  {
+    type: "multi", id: "q40",
+    question: "OSI 网络层提供哪两种服务？（选择两项。）",
+    options: ["A. 执行错误检测", "B. 在介质中放置帧", "C. 从传输层封装 PDU", "D. 将数据包路由到目的地", "E. 冲突检测"],
+    answer: "CD",
+    explanation: "网络层（第 3 层）的核心功能是寻址、封装（将传输层的段封装成包）以及路由转发。"
+  },
+  {
+    type: "multi", id: "q41",
+    question: "在以下哪两种情况下，交换机会在除接收某帧的端口之外的所有端口泛洪此帧？（选择两项。）",
+    options: ["A. 帧中的源地址为组播地址。", "B. 帧头中的源地址为广播地址。", "C. 帧中的目的地址为已知单播地址。", "D. 使用广播地址作为目的地址的帧。", "E. 交换机不知道此目的地址。"],
+    answer: "DE",
+    explanation: "泛洪（Flooding）发生在：1. 收到广播帧；2. 收到组播帧；3. 收到 MAC 地址表中没有对应记录的未知单播帧。"
+  },
+  {
+    type: "multi", id: "q42",
+    question: "下列哪两项是 NVRAM 的功能？（选择两项。）",
+    options: ["A. 存储路由表", "B. 断电时保留内容", "C. 存储 ARP 表", "D. 包含运行配置文件", "E. 存储启动配置文件"],
+    answer: "BE",
+    explanation: "NVRAM 是非易失性 RAM，专门用于存储 startup-config（启动配置），确保设备重启后配置不丢失。"
+  },
+  {
+    type: "multi", id: "q43",
+    question: "RFC 1918 将哪三个地址块定义为用于私有网络？（选择三项。）",
+    options: ["A. 192.168.0.0/16", "B. 169.254.0.0/16", "C. 10.0.0.0/8", "D. 100.64.0.0/14", "E. 172.16.0.0/12"],
+    answer: "ACE",
+    explanation: "这是标准的私有 IPv4 地址范围。169.254.x.x 是 APIPA 地址。"
+  },
+  {
+    type: "multi", id: "q44",
+    question: "IPv6 单播地址包括哪两种类型？（选择两项。）",
+    options: ["A. 本地链路 (Link-local)", "B. 广播", "C. 任播 (Anycast)", "D. 组播", "E. 环回"],
+    answer: "AC",
+    explanation: "注意题目问的是"单播"类型。IPv6 没有广播。IPv6 单播包括：全局单播、本地链路、唯一本地单播等。任播虽然特殊，但在寻址上被视为单播的一种表现。"
+  },
+  {
+    type: "multi", id: "q45",
+    question: "哪两个字段包含在 TCP 报头中，而不包含在 UDP 报头中？（选择两项。）",
+    options: ["A. 校验和", "B. 序列号", "C. 源端口", "D. 目的端口", "E. 窗口"],
+    answer: "BE",
+    explanation: "序列号用于排序和可靠性，窗口用于流量控制，这些都是 TCP 独有的特征。"
+  },
+  {
+    type: "multi", id: "q46",
+    question: "下列哪三个字段在 UDP 数据段报头中使用？（选择三项。）",
+    options: ["A. 序列号", "B. 源端口", "C. 长度", "D. 校验和", "E. 窗口大小", "F. 确认号"],
+    answer: "BCD",
+    explanation: "UDP 头部非常简单，只有四个字段：源端口、目的端口、长度和校验和。序列号、窗口大小、确认号都是 TCP 特有的字段。"
+  },
+  {
+    type: "multi", id: "q47",
+    question: "哪三种应用层协议使用 TCP？（选择三项。）",
+    options: ["A. FTP", "B. SMTP", "C. DHCP", "D. SNMP", "E. TFTP", "F. HTTP"],
+    answer: "ABF",
+    explanation: "需要可靠传输的服务使用 TCP。DHCP、SNMP 和 TFTP 通常使用 UDP 以追求效率。"
+  },
+  {
+    type: "multi", id: "q48",
+    question: "哪两种类型的应用程序最适合 UDP？（选择两项。）",
+    options: ["A. 需要数据流控制的应用程序", "B. 可以容忍部分数据丢失，但要求延迟极小或没有延迟的应用程序", "C. 自行处理可靠性的应用程序", "D. 要求可靠传输的应用程序", "E. 需要对数据段进行重新排序的应用程序"],
+    answer: "BC",
+    explanation: "实时应用（如语音、视频）适合 UDP。如果应用层本身有重传机制（如 TFTP），也可以使用 UDP。"
+  },
+  {
+    type: "multi", id: "q49",
+    question: "以下哪两个特征与 UDP 会话相关？（选择两项。）",
+    options: ["A. 未确认的数据包会重新传输。", "B. 目的设备在延迟最小的情况下接收流量。", "C. 跟踪传输的数据段。", "D. 收到的数据未确认。", "E. 目的设备重组消息并将其传递给应用程序。"],
+    answer: "BD",
+    explanation: "UDP 是无连接的，不确认收货，不重传，因此开销小、延迟低。"
+  },
+  {
+    type: "multi", id: "q50",
+    question: "下列哪三项是传输层的职责？（选择三项。）",
+    options: ["A. 将数据包传输到目的网络", "B. 确定应当处理传输数据的客户端和服务器上的应用程序和服务", "C. 把数据格式化成兼容形式，以便目的设备接收", "D. 在同一网络上多路复用来自许多用户或应用程序的多个通信流", "E. 对帧中的内容执行错误检测", "F. 满足应用程序的可靠性要求（如果有）"],
+    answer: "BDF",
+    explanation: "传输层通过端口号标识应用，通过端口复用允许多个应用同时使用网络，并通过 TCP 提供可选的可靠性。"
+  },
+  {
+    type: "multi", id: "q51",
+    question: "设备在发送邮件的应用过程中可能会使用哪两种协议？（选择两项。）",
+    options: ["A. SMTP", "B. IMAP", "C. POP3", "D. HTTP", "E. DNS", "F. POP"],
+    answer: "AE",
+    explanation: "发送邮件使用 SMTP。但在发送前，设备必须通过 DNS 解析邮件服务器的域名。IMAP/POP3 是用来接收（下载）邮件的。"
+  },
+  {
+    type: "multi", id: "q52",
+    question: "下列哪三项正确描述了 DHCP 发现报文？（选择三项。）",
+    options: ["A. 源 MAC 地址为 48 个 1 (FF-FF-FF-FF-FF-FF)。", "B. 只有 DHCP 服务器接收报文。", "C. 报文来自请求 IP 地址的客户端。", "D. 报文来自提供 IP 地址的服务器。", "E. 目的 IP 地址为 255.255.255.255。", "F. 所有主机都接收报文，但只有 DHCP 服务器作出回复。"],
+    answer: "BCE",
+    explanation: "DHCP Discover 是广播（目的 IP 255.255.255.255），由客户端发起寻找服务器。虽然物理上所有主机会收到广播，但只有运行 DHCP 服务的设备会处理。"
+  },
+  {
+    type: "multi", id: "q53",
+    question: "哪三种协议在 TCP/IP 模型的应用层工作？（选择三项。）",
+    options: ["A. DHCP", "B. FTP", "C. UDP", "D. TCP", "E. POP3", "F. ARP"],
+    answer: "ABE",
+    explanation: "TCP/IP 模型将 OSI 的上三层合并为应用层。TCP/UDP 属于传输层，ARP 属于网络接口层/网络层交界。"
+  },
+  {
+    type: "multi", id: "q54",
+    question: "OSI 模型的哪三层提供类似于 TCP/IP 模型应用层提供的网络服务？（选择三项。）",
+    options: ["A. 传输层", "B. 表示层", "C. 物理层", "D. 会话层", "E. 数据链路层", "F. 应用层"],
+    answer: "BDF",
+    explanation: "TCP/IP 模型最上层的"应用层"涵盖了 OSI 模型中的第 7 层（应用层）、第 6 层（表示层）和第 5 层（会话层）。"
+  },
+  {
+    type: "multi", id: "q55",
+    question: "员工抱怨 Windows PC 无法连接到互联网。网络技术人员在 PC 上发出 ipconfig 命令，显示的 IP 地址为 169.254.10.3。这可以得出哪两个结论？（选择两项。）",
+    options: ["A. 默认网关地址没有配置。", "B. DNS 服务器的地址配置错误。", "C. 电脑无法联系 DHCP 服务器。", "D. 企业网络的动态路由配置错误。", "E. PC 配置为自动获取 IP 地址。"],
+    answer: "CE",
+    explanation: "169.254.x.x 是 APIPA 地址。只有当 PC 设为"自动获取"且没能从 DHCP 服务器拿到地址时，Windows 才会分配这种地址。"
+  },
+  {
+    type: "multi", id: "q56",
+    question: "一名网络管理员正在升级一个小型业务网络，以便对实时应用程序流量给予高度优先级。网络管理员试图调整哪两种类型的网络服务？（选择两项。）",
+    options: ["A. SNMP", "B. 即时消息", "C. 语音", "D. FTP", "E. 视频"],
+    answer: "CE",
+    explanation: "语音（VoIP）和视频流对延迟和抖动极其敏感，是 QoS（服务质量）配置中优先级最高的服务类型。"
+  },
+  {
+    type: "multi", id: "q57",
+    question: "在哪两个接口或端口上可以通过配置执行超时设置来提高安全性？（选择两项。）",
+    options: ["A. 快速以太网接口", "B. 环回接口", "C. 控制台端口 (Console)", "D. vty 端口", "E. 串行接口"],
+    answer: "CD",
+    explanation: "exec-timeout 命令用于管理性连接（Console 物理连接或 VTY 远程连接），超时自动注销可防止他人利用闲置会话进入设备。"
+  },
+  {
+    type: "multi", id: "q58",
+    question: "在路由器上配置 SSH 以实施安全的网络管理时，网络工程师已发出 login local 和 transport input ssh vty 线路命令。要完成 SSH 配置，必须执行下列哪三项额外的配置操作？（选择三项。）",
+    options: ["A. 创建有效的本地用户名和密码数据库。", "B. 生成 RSA 密钥之后手动启用 SSH。", "C. 配置正确的 IP 域名。", "D. 配置基于角色的 CLI 访问。", "E. 生成非对称 RSA 密钥。", "F. 设置用户权限级别。"],
+    answer: "ACE",
+    explanation: "SSH 运行依赖：1. 唯一的主机名；2. 域名（用于生成密钥）；3. 生成 RSA 密钥；4. 本地用户数据库（配合 login local）。"
+  }
+];
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'ccna_v1_quiz';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : {};
+  } catch { return {}; }
+}
+
+function saveState(st) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+}
+
+let state = loadState();
+if (!state.answers) state.answers = {};
+if (!state.wrong) state.wrong = [];
+if (!state.wrongCount) state.wrongCount = {};
+if (!state.favorites) state.favorites = [];
+
+let randomCurrentQ = null;
+let currentPage = 'dashboard';
+let currentType = null;
+let currentIndex = 0;
+let currentQuestions = [];
+let selectedOptions = new Set();
+let answered = false;
+
+// ==================== HELPERS ====================
+function getStats() {
+  const total = Object.keys(state.answers).length;
+  const correct = Object.values(state.answers).filter(a => a.correct).length;
+  const wrong = state.wrong.length;
+  const rate = total > 0 ? Math.round(correct / total * 100) : 0;
+  return { total, correct, wrong, rate };
+}
+
+function updateHeaderStats() {
+  const s = getStats();
+  document.getElementById('hdr-done').textContent = s.total;
+  document.getElementById('hdr-rate').textContent = s.total > 0 ? s.rate + '%' : '-';
+  document.getElementById('badge-all').textContent = QUESTIONS.length;
+  document.getElementById('badge-wrong').textContent = state.wrong.length;
+  document.getElementById('badge-fav').textContent = state.favorites.length;
+}
+
+function toggleMobileMenu() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+// ==================== NAVIGATION ====================
+function switchPage(page) {
+  currentPage = page;
+  currentIndex = 0;
+  selectedOptions = new Set();
+  answered = false;
+  if (page === 'random') randomCurrentQ = null;
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.querySelector(`[data-page="${page}"]`);
+  if (navEl) navEl.classList.add('active');
+
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  render();
+}
+
+function render() {
+  const main = document.getElementById('main-content');
+  if (currentPage === 'dashboard') renderDashboard(main);
+  else if (currentPage === 'practice') renderPractice(main);
+  else if (currentPage === 'random') renderRandom(main);
+  else if (currentPage === 'wrong') renderWrong(main);
+  else if (currentPage === 'fav') renderFavorites(main);
+  else if (currentPage === 'settings') renderSettings(main);
+  updateHeaderStats();
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard(el) {
+  const s = getStats();
+  const done = Object.keys(state.answers).length;
+  const pct = QUESTIONS.length > 0 ? Math.round(done / QUESTIONS.length * 100) : 0;
+
+  el.innerHTML = `
+    <div class="fade-in">
+      <h2 style="margin-bottom:20px;font-size:22px;font-weight:700;">学习总览</h2>
+      <div class="dash-grid">
+        <div class="dash-card accent"><div class="num">${QUESTIONS.length}</div><div class="label">总题数</div></div>
+        <div class="dash-card green"><div class="num">${s.total}</div><div class="label">已做题</div></div>
+        <div class="dash-card"><div class="num" style="color:var(--green)">${s.rate}%</div><div class="label">正确率</div></div>
+        <div class="dash-card red"><div class="num">${s.wrong}</div><div class="label">错题数</div></div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:16px;">整体进度</h3>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+          <span>多选题</span>
+          <span style="color:var(--text3)">${done}/${QUESTIONS.length} &middot; 正确率 ${s.rate}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:16px;">快速开始</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="switchPage('random')">&#127922; 随机练习</button>
+          <button class="btn btn-secondary" onclick="switchPage('practice')">&#9745; 顺序练习</button>
+          ${state.wrong.length > 0 ? '<button class="btn btn-secondary" onclick="switchPage(\'wrong\')">&#10060; 复习错题 (' + state.wrong.length + ')</button>' : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== PRACTICE ====================
+function renderPractice(el) {
+  currentQuestions = QUESTIONS;
+  renderQuestion(el, currentQuestions, currentIndex);
+}
+
+// ==================== RANDOM ====================
+function drawRandomQuestion() {
+  const idx = Math.floor(Math.random() * QUESTIONS.length);
+  randomCurrentQ = QUESTIONS[idx];
+  answered = false;
+  selectedOptions = new Set();
+}
+
+function renderRandom(el) {
+  if (!randomCurrentQ) drawRandomQuestion();
+  renderRandomQuestion(el, randomCurrentQ);
+}
+
+function renderRandomQuestion(el, q) {
+  const prevAnswer = state.answers[q.id] || null;
+  const isFav = state.favorites.includes(q.id);
+  const wrongTimes = state.wrongCount[q.id] || 0;
+
+  if (prevAnswer && !answered) {
+    answered = true;
+    selectedOptions = new Set(prevAnswer.selected || []);
+  }
+
+  let optionsHTML = q.options.map((opt, i) => {
+    const letter = String.fromCharCode(65 + i);
+    let cls = 'multi-mode';
+    if (answered || prevAnswer) {
+      cls += ' disabled';
+      const correctLetters = q.answer.split('').map(l => l.charCodeAt(0) - 65);
+      if (selectedOptions.has(i)) {
+        cls += correctLetters.includes(i) ? ' correct' : ' wrong';
+      } else if (correctLetters.includes(i)) {
+        cls += ' correct';
+      }
+    } else if (selectedOptions.has(i)) {
+      cls += ' selected';
+    }
+    let optText = opt.replace(/^[A-Fa-f][.、\s]+/, '').trim();
+    return '<div class="option ' + cls + '" onclick="selectOption(' + i + ')"><span class="opt-mark">' + letter + '</span><span>' + optText + '</span></div>';
+  }).join('');
+
+  let resultHTML = '';
+  if (answered || prevAnswer) {
+    const isCorrect = prevAnswer?.correct ?? false;
+    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + q.answer + '</div>';
+  }
+
+  let expHTML = '';
+  if ((answered || prevAnswer) && q.explanation) {
+    expHTML = '<div class="explanation show"><div class="exp-title">解析</div>' + q.explanation + '</div>';
+  }
+
+  let confirmBtn = '';
+  if (!answered && !prevAnswer) {
+    confirmBtn = '<button class="btn-confirm-multi ' + (selectedOptions.size > 0 ? 'show' : '') + '" id="confirmBtn" onclick="confirmMulti()">确认提交 (' + selectedOptions.size + '项)</button>';
+  }
+
+  let wrongBadge = wrongTimes > 0 ? '<span style="font-size:12px;color:var(--red);margin-left:8px;">&#10060; 已错 ' + wrongTimes + ' 次</span>' : '';
+
+  el.innerHTML = `
+    <div class="fade-in">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="q-tag multi">多选题</span>
+          ${wrongBadge}
+        </div>
+        <div class="q-actions">
+          <button onclick="toggleFavorite('${q.id}')" class="${isFav ? 'fav-active' : ''}">${isFav ? '&#9733; 已收藏' : '&#9734; 收藏'}</button>
+        </div>
+      </div>
+      <div class="q-text">${q.question}</div>
+      ${!answered && !prevAnswer ? '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;">（多选题，请选择所有正确选项后点击确认）</div>' : ''}
+      <div class="options">${optionsHTML}</div>
+      ${confirmBtn}
+      ${resultHTML}
+      ${expHTML}
+      <div class="nav-btns">
+        <button class="btn btn-primary" onclick="nextRandomQuestion()" ${!(answered || prevAnswer) ? 'disabled' : ''}>换一题 &rarr;</button>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== WRONG & FAV ====================
+function renderWrong(el) {
+  const wrongQs = QUESTIONS.filter(q => state.wrong.includes(q.id));
+  if (wrongQs.length === 0) {
+    el.innerHTML = '<div class="empty-state fade-in"><div class="icon">&#127881;</div><div class="title">错题本为空</div><div>太棒了，继续保持！</div></div>';
+    return;
+  }
+  currentQuestions = wrongQs;
+  renderQuestion(el, currentQuestions, currentIndex);
+}
+
+function renderFavorites(el) {
+  const favQs = QUESTIONS.filter(q => state.favorites.includes(q.id));
+  if (favQs.length === 0) {
+    el.innerHTML = '<div class="empty-state fade-in"><div class="icon">&#11088;</div><div class="title">收藏夹为空</div><div>点击题目中的收藏按钮添加</div></div>';
+    return;
+  }
+  currentQuestions = favQs;
+  renderQuestion(el, currentQuestions, currentIndex);
+}
+
+// ==================== QUESTION RENDERER ====================
+function renderQuestion(el, questions, index) {
+  if (index >= questions.length) {
+    el.innerHTML = '<div class="empty-state fade-in"><div class="icon">&#127881;</div><div class="title">全部完成！</div></div>';
+    return;
+  }
+
+  const q = questions[index];
+  const prevAnswer = state.answers[q.id] || null;
+  const isFav = state.favorites.includes(q.id);
+
+  if (prevAnswer && !answered) {
+    answered = true;
+    selectedOptions = new Set(prevAnswer.selected || []);
+  }
+
+  let optionsHTML = q.options.map((opt, i) => {
+    const letter = String.fromCharCode(65 + i);
+    let cls = 'multi-mode';
+    if (answered || prevAnswer) {
+      cls += ' disabled';
+      const correctLetters = q.answer.split('').map(l => l.charCodeAt(0) - 65);
+      if (selectedOptions.has(i)) {
+        cls += correctLetters.includes(i) ? ' correct' : ' wrong';
+      } else if (correctLetters.includes(i)) {
+        cls += ' correct';
+      }
+    } else if (selectedOptions.has(i)) {
+      cls += ' selected';
+    }
+    let optText = opt.replace(/^[A-Fa-f][.、\s]+/, '').trim();
+    return '<div class="option ' + cls + '" onclick="selectOption(' + i + ')"><span class="opt-mark">' + letter + '</span><span>' + optText + '</span></div>';
+  }).join('');
+
+  let resultHTML = '';
+  if (answered || prevAnswer) {
+    const isCorrect = prevAnswer?.correct ?? false;
+    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + q.answer + '</div>';
+  }
+
+  let expHTML = '';
+  if ((answered || prevAnswer) && q.explanation) {
+    expHTML = '<div class="explanation show"><div class="exp-title">解析</div>' + q.explanation + '</div>';
+  }
+
+  let confirmBtn = '';
+  if (!answered && !prevAnswer) {
+    confirmBtn = '<button class="btn-confirm-multi ' + (selectedOptions.size > 0 ? 'show' : '') + '" id="confirmBtn" onclick="confirmMulti()">确认提交 (' + selectedOptions.size + '项)</button>';
+  }
+
+  // Navigation grid
+  let gridHTML = '';
+  if (questions.length > 1) {
+    gridHTML = '<div class="q-grid">' + questions.map((qq, i) => {
+      let gcls = '';
+      if (i === index) gcls = 'current';
+      else if (state.answers[qq.id]?.correct) gcls = 'answered-correct';
+      else if (state.answers[qq.id] && !state.answers[qq.id].correct) gcls = 'answered-wrong';
+      return '<div class="q-grid-item ' + gcls + '" onclick="goToQuestion(' + i + ')">' + (i + 1) + '</div>';
+    }).join('') + '</div>';
+  }
+
+  const wrongTimesQ = state.wrongCount[q.id] || 0;
+  el.innerHTML = `
+    <div class="fade-in">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="q-tag multi">多选题</span>
+          <span class="q-num">${index + 1} / ${questions.length}</span>
+          ${wrongTimesQ > 0 ? '<span style="font-size:12px;color:var(--red);">&#10060; 已错 ' + wrongTimesQ + ' 次</span>' : ''}
+        </div>
+        <div class="q-actions">
+          <button onclick="toggleFavorite('${q.id}')" class="${isFav ? 'fav-active' : ''}">${isFav ? '&#9733; 已收藏' : '&#9734; 收藏'}</button>
+        </div>
+      </div>
+
+      <div class="q-text">${q.question}</div>
+      ${!answered && !prevAnswer ? '<div style="font-size:12px;color:var(--text3);margin-bottom:12px;">（多选题，请选择所有正确选项后点击确认）</div>' : ''}
+      <div class="options">${optionsHTML}</div>
+      ${confirmBtn}
+      ${resultHTML}
+      ${expHTML}
+
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="prevQuestion()" ${index === 0 ? 'disabled' : ''}>&larr; 上一题</button>
+        <button class="btn btn-primary" onclick="nextQuestion()">${index >= questions.length - 1 ? '完成' : '下一题 &rarr;'}</button>
+      </div>
+
+      ${gridHTML}
+    </div>
+  `;
+}
+
+// ==================== INTERACTIONS ====================
+function selectOption(idx) {
+  if (answered) return;
+  if (selectedOptions.has(idx)) selectedOptions.delete(idx);
+  else selectedOptions.add(idx);
+  render();
+}
+
+function confirmMulti() {
+  if (selectedOptions.size === 0) return;
+  const q = currentPage === 'random' ? randomCurrentQ : currentQuestions[currentIndex];
+  checkAnswer(q);
+}
+
+function checkAnswer(q) {
+  answered = true;
+  const selectedLetters = [...selectedOptions].map(i => String.fromCharCode(65 + i)).sort().join('');
+  const correctLetters = q.answer.split('').sort().join('');
+  const correct = selectedLetters === correctLetters;
+
+  state.answers[q.id] = { selected: [...selectedOptions], correct };
+
+  if (!correct) {
+    if (!state.wrong.includes(q.id)) state.wrong.push(q.id);
+    state.wrongCount[q.id] = (state.wrongCount[q.id] || 0) + 1;
+  } else {
+    state.wrong = state.wrong.filter(id => id !== q.id);
+  }
+
+  saveState(state);
+  render();
+}
+
+function nextQuestion() {
+  if (currentIndex < currentQuestions.length - 1) {
+    currentIndex++;
+    answered = false;
+    selectedOptions = new Set();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    render();
+  }
+}
+
+function nextRandomQuestion() {
+  drawRandomQuestion();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    answered = false;
+    selectedOptions = new Set();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goToQuestion(idx) {
+  currentIndex = idx;
+  answered = false;
+  selectedOptions = new Set();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleFavorite(id) {
+  if (state.favorites.includes(id)) {
+    state.favorites = state.favorites.filter(fid => fid !== id);
+  } else {
+    state.favorites.push(id);
+  }
+  saveState(state);
+  render();
+}
+
+// ==================== SETTINGS ====================
+function renderSettings(el) {
+  const s = getStats();
+  el.innerHTML = `
+    <div class="fade-in">
+      <h2 style="margin-bottom:20px;font-size:22px;font-weight:700;">设置</h2>
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">数据管理</h3>
+        <div class="setting-row">
+          <div>
+            <div style="font-size:14px;">清除做题记录</div>
+            <div style="font-size:12px;color:var(--text3);">已完成 ${s.total} 题</div>
+          </div>
+          <button class="btn btn-secondary" onclick="clearAnswers()" style="font-size:13px;">清除</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-size:14px;">清空错题本</div>
+            <div style="font-size:12px;color:var(--text3);">${state.wrong.length} 道错题</div>
+          </div>
+          <button class="btn btn-secondary" onclick="clearWrong()" style="font-size:13px;">清空</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-size:14px;">清空收藏夹</div>
+            <div style="font-size:12px;color:var(--text3);">${state.favorites.length} 道收藏</div>
+          </div>
+          <button class="btn btn-secondary" onclick="clearFavorites()" style="font-size:13px;">清空</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-size:14px;color:var(--red);">重置所有数据</div>
+            <div style="font-size:12px;color:var(--text3);">清除所有记录、错题、收藏</div>
+          </div>
+          <button class="btn btn-secondary" onclick="resetAll()" style="font-size:13px;color:var(--red);border-color:var(--red);">重置</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">关于</h3>
+        <div style="font-size:14px;color:var(--text2);line-height:1.8;">
+          <p>CCNA 第一册 刷题系统</p>
+          <p>题库：多选题 ${QUESTIONS.length} 道</p>
+          <p>来源：第一册模块一、三、五、六、七、九、十一~十七 + 检查点一~六</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function clearAnswers() {
+  if (confirm('确定清除所有做题记录？')) {
+    state.answers = {};
+    state.wrongCount = {};
+    saveState(state);
+    render();
+  }
+}
+
+function clearWrong() {
+  if (confirm('确定清空错题本？')) {
+    state.wrong = [];
+    state.wrongCount = {};
+    saveState(state);
+    render();
+  }
+}
+
+function clearFavorites() {
+  if (confirm('确定清空收藏夹？')) {
+    state.favorites = [];
+    saveState(state);
+    render();
+  }
+}
+
+function resetAll() {
+  if (confirm('确定重置所有数据？此操作不可恢复！')) {
+    state = { answers: {}, wrong: [], favorites: [], wrongCount: {} };
+    saveState(state);
+    render();
+  }
+}
+
+// ==================== KEYBOARD SHORTCUTS ====================
+document.addEventListener('keydown', (e) => {
+  if (currentPage === 'practice' || currentPage === 'random' || currentPage === 'wrong' || currentPage === 'fav') {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      if (currentPage === 'random') {
+        if (answered || state.answers[randomCurrentQ?.id]) nextRandomQuestion();
+      } else {
+        nextQuestion();
+      }
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (currentPage !== 'random') prevQuestion();
+    } else if (['1','2','3','4','5','6','a','b','c','d','e','f','A','B','C','D','E','F'].includes(e.key)) {
+      let idx;
+      if ('123456'.includes(e.key)) idx = parseInt(e.key) - 1;
+      else idx = e.key.toUpperCase().charCodeAt(0) - 65;
+
+      const q = currentPage === 'random' ? randomCurrentQ : currentQuestions[currentIndex];
+      if (q && idx >= 0 && idx < q.options.length) {
+        selectOption(idx);
+      }
+    } else if (e.key === 'Enter') {
+      if (!answered) confirmMulti();
+    }
+  }
+});
+
+// ==================== INIT ====================
+render();
+</script>
+
+</body>
+</html>
