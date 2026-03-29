@@ -1081,7 +1081,14 @@ function renderRandomQuestion(el, q) {
     let cls = 'multi-mode';
     if (answered || prevAnswer) {
       cls += ' disabled';
-      const correctLetters = q.answer.split('').map(l => l.charCodeAt(0) - 65);
+      const correctLetters = (function() {
+        const ans = Array.isArray(q.answer) ? q.answer : q.answer.split('');
+        if (ans.length > 0 && ans[0].length === 1 && ans[0] >= 'A' && ans[0] <= 'F') {
+          return ans.map(l => l.charCodeAt(0) - 65);
+        } else {
+          return ans.map(a => q.options.findIndex(o => o.trim() === a.trim() || o.replace(/^[A-F][.\s、]+/,'').trim() === a.trim()));
+        }
+      })();
       if (selectedOptions.has(i)) {
         cls += correctLetters.includes(i) ? ' correct' : ' wrong';
       } else if (correctLetters.includes(i)) {
@@ -1097,7 +1104,7 @@ function renderRandomQuestion(el, q) {
   let resultHTML = '';
   if (answered || prevAnswer) {
     const isCorrect = prevAnswer?.correct ?? false;
-    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + q.answer + '</div>';
+    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + (Array.isArray(q.answer) ? q.answer.join(', ') : q.answer) + '</div>';
   }
 
   let expHTML = '';
@@ -1183,7 +1190,14 @@ function renderQuestion(el, questions, index) {
     let cls = 'multi-mode';
     if (answered || prevAnswer) {
       cls += ' disabled';
-      const correctLetters = q.answer.split('').map(l => l.charCodeAt(0) - 65);
+      const correctLetters = (function() {
+        const ans = Array.isArray(q.answer) ? q.answer : q.answer.split('');
+        if (ans.length > 0 && ans[0].length === 1 && ans[0] >= 'A' && ans[0] <= 'F') {
+          return ans.map(l => l.charCodeAt(0) - 65);
+        } else {
+          return ans.map(a => q.options.findIndex(o => o.trim() === a.trim() || o.replace(/^[A-F][.\s、]+/,'').trim() === a.trim()));
+        }
+      })();
       if (selectedOptions.has(i)) {
         cls += correctLetters.includes(i) ? ' correct' : ' wrong';
       } else if (correctLetters.includes(i)) {
@@ -1199,7 +1213,7 @@ function renderQuestion(el, questions, index) {
   let resultHTML = '';
   if (answered || prevAnswer) {
     const isCorrect = prevAnswer?.correct ?? false;
-    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + q.answer + '</div>';
+    resultHTML = '<div class="result-line show ' + (isCorrect ? 'correct' : 'wrong') + '">' + (isCorrect ? '&#10003; 回答正确' : '&#10007; 回答错误') + ' &nbsp;正确答案：' + (Array.isArray(q.answer) ? q.answer.join(', ') : q.answer) + '</div>';
   }
 
   let expHTML = '';
@@ -1272,8 +1286,16 @@ function confirmMulti() {
 
 function checkAnswer(q) {
   answered = true;
-  const selectedLetters = [...selectedOptions].map(i => String.fromCharCode(65 + i)).sort().join('');
-  const correctLetters = q.answer.split('').sort().join('');
+  const selectedLetters = [...selectedOptions].sort().join(',');
+  // 统一 answer 为索引列表
+  const ansArr = Array.isArray(q.answer) ? q.answer : q.answer.split('');
+  let correctIndices;
+  if (ansArr.length > 0 && ansArr[0].length === 1 && ansArr[0] >= 'A' && ansArr[0] <= 'F') {
+    correctIndices = ansArr.map(l => l.charCodeAt(0) - 65);
+  } else {
+    correctIndices = ansArr.map(a => q.options.findIndex(o => o.trim() === a.trim() || o.replace(/^[A-F][.\s、]+/,'').trim() === a.trim()));
+  }
+  const correctLetters = correctIndices.sort().join(',');
   const correct = selectedLetters === correctLetters;
 
   state.answers[q.id] = { selected: [...selectedOptions], correct };
